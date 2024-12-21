@@ -2,6 +2,7 @@ const express = require('express');
 const { resolve } = require('path');
 let { track } = require("./models/track.model");
 let { sequelize } = require("./lib/index");
+const { where } = require('sequelize');
 
 const app = express();
 const port = 3000;
@@ -10,6 +11,7 @@ app.use(express.static('static'));
 
 let movieData = [
   {
+    "id": 1,
     "name": "Shape of You",
     "genre": "Pop",
     "release_year": 2017,
@@ -18,6 +20,7 @@ let movieData = [
     "duration": 233
   },
   {
+    "id": 2,
     "name": "Bohemian Rhapsody",
     "genre": "Rock",
     "release_year": 1975,
@@ -26,6 +29,7 @@ let movieData = [
     "duration": 354
   },
   {
+    "id": 3,
     "name": "Blinding Lights",
     "genre": "Synth-pop",
     "release_year": 2019,
@@ -34,6 +38,7 @@ let movieData = [
     "duration": 200
   },
   {
+    "id": 4,
     "name": "Hotel California",
     "genre": "Rock",
     "release_year": 1976,
@@ -42,6 +47,7 @@ let movieData = [
     "duration": 390
   },
   {
+    "id": 5,
     "name": "Rolling in the Deep",
     "genre": "Soul",
     "release_year": 2010,
@@ -50,6 +56,7 @@ let movieData = [
     "duration": 228
   },
   {
+    "id": 6,
     "name": "Billie Jean",
     "genre": "Pop",
     "release_year": 1983,
@@ -58,6 +65,7 @@ let movieData = [
     "duration": 293
   },
   {
+    "id": 7,
     "name": "Smells Like Teen Spirit",
     "genre": "Grunge",
     "release_year": 1991,
@@ -66,6 +74,7 @@ let movieData = [
     "duration": 301
   },
   {
+    "id": 8,
     "name": "Someone Like You",
     "genre": "Soul",
     "release_year": 2011,
@@ -74,6 +83,7 @@ let movieData = [
     "duration": 285
   },
   {
+    "id": 9,
     "name": "Imagine",
     "genre": "Soft Rock",
     "release_year": 1971,
@@ -82,6 +92,7 @@ let movieData = [
     "duration": 183
   },
   {
+    "id": 10,
     "name": "Uptown Funk",
     "genre": "Funk",
     "release_year": 2014,
@@ -89,7 +100,7 @@ let movieData = [
     "album": "Uptown Special",
     "duration": 269
   }
-];
+]
 
 
 app.get("/seed_db", async (req, res) => {
@@ -99,6 +110,67 @@ app.get("/seed_db", async (req, res) => {
     res.status(200).json({ message: "DB has successfully Seeded" });
   } catch (error) {
     res.status(500).json({ message: "Error seeding the data", error: error });
+  }
+});
+
+async function fetchAllTracks() {
+  let tracks = await track.findAll();
+  return {tracks};
+}
+
+app.get("/tracks", async (req, res) => {
+  try {
+    let response = await fetchAllTracks();
+    if (response && response.tracks.length === 0) {
+      res.status(200).json({ message: "No tracks found in the DB" });
+    } else {
+      res.status(200).json(response)
+    }
+
+  } catch (error) {
+    res.status(500).json({ message: "Unable to get tracks from DB", error: error });
+  }
+});
+
+async function getTrackById(id){
+  let data = await track.findOne({where :{id}})
+  return {track:data};
+}
+
+app.get("/tracks/details/:id", async(req,res)=>{
+  let trackId =  parseInt(req.params.id);
+  try {
+    let response = await getTrackById(trackId);
+    console.log(response);
+    if (response && response.track === null) {
+      res.status(200).json({ message: "No tracks found in the DB with id "+ trackId});
+    } else {
+      res.status(200).json(response)
+    }
+    
+  } catch (error) {
+    res.status(500).json({ message: "Unable to get track with id" + trackId, error: error });
+  }
+});
+
+async function getTracksByArtist(artist){
+  let tracks = await track.findAll({where:{artist}});
+  return {tracks}
+}
+
+app.get("/tracks/artists/:artist", async(req,res)=>{
+  let artist =  req.params.artist;
+  try {
+    let response = await getTracksByArtist(artist);
+    console.log(response);
+    if (response && response.tracks.length === 0) {
+      res.status(200).json({ message: "No tracks found in the DB with artist "+ artist});
+    } else {
+      res.status(200).json(response)
+    }
+    
+  } catch (error) {
+    res.status(500).json({ message: "Unable to get track with artist" + artist, error: error });
   }
 });
 
