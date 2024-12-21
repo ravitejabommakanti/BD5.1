@@ -3,11 +3,13 @@ const { resolve } = require('path');
 let { track } = require("./models/track.model");
 let { sequelize } = require("./lib/index");
 const { where } = require('sequelize');
+const cors = require("cors");
 
 const app = express();
 const port = 3000;
 
 app.use(express.static('static'));
+app.use(cors());
 
 let movieData = [
   {
