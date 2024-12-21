@@ -195,6 +195,21 @@ app.get("/tracks/sort/release_year", async (req, res) => {
   }
 });
 
+async function addNewTrack(track){
+  let newTrack = await track.create(track)
+  return {newTrack};
+}
+
+app.post("/tracks/new", async(req, res)=>{
+  try {
+    let track = req.body.newTrack;
+    let response = await addNewTrack(track);
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ message: "Error while adding a new track in the DB", error: error });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
