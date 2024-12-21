@@ -115,7 +115,7 @@ app.get("/seed_db", async (req, res) => {
 
 async function fetchAllTracks() {
   let tracks = await track.findAll();
-  return {tracks};
+  return { tracks };
 }
 
 app.get("/tracks", async (req, res) => {
@@ -132,45 +132,66 @@ app.get("/tracks", async (req, res) => {
   }
 });
 
-async function getTrackById(id){
-  let data = await track.findOne({where :{id}})
-  return {track:data};
+async function getTrackById(id) {
+  let data = await track.findOne({ where: { id } })
+  return { track: data };
 }
 
-app.get("/tracks/details/:id", async(req,res)=>{
-  let trackId =  parseInt(req.params.id);
+app.get("/tracks/details/:id", async (req, res) => {
+  let trackId = parseInt(req.params.id);
   try {
     let response = await getTrackById(trackId);
     console.log(response);
     if (response && response.track === null) {
-      res.status(200).json({ message: "No tracks found in the DB with id "+ trackId});
+      res.status(404).json({ message: "No tracks found in the DB with id " + trackId });
     } else {
       res.status(200).json(response)
     }
-    
+
   } catch (error) {
     res.status(500).json({ message: "Unable to get track with id" + trackId, error: error });
   }
 });
 
-async function getTracksByArtist(artist){
-  let tracks = await track.findAll({where:{artist}});
-  return {tracks}
+async function getTracksByArtist(artist) {
+  let tracks = await track.findAll({ where: { artist } });
+  return { tracks }
 }
 
-app.get("/tracks/artists/:artist", async(req,res)=>{
-  let artist =  req.params.artist;
+app.get("/tracks/artists/:artist", async (req, res) => {
+  let artist = req.params.artist;
   try {
     let response = await getTracksByArtist(artist);
     console.log(response);
     if (response && response.tracks.length === 0) {
-      res.status(200).json({ message: "No tracks found in the DB with artist "+ artist});
+      res.status(404).json({ message: "No tracks found in the DB with artist " + artist });
     } else {
       res.status(200).json(response)
     }
-    
+
   } catch (error) {
     res.status(500).json({ message: "Unable to get track with artist" + artist, error: error });
+  }
+});
+
+async function sortTrackByReleaseYear(order) {
+  let data = await track.findAll({ order: [["release_year", order]] });
+  return { tracks: data };
+}
+
+app.get("/tracks/sort/release_year", async (req, res) => {
+  try {
+    let order = req.query.order;
+    let response = await sortTrackByReleaseYear(order);
+    console.log(response);
+    if (response && response.tracks.length === 0) {
+      res.status(404).json({ message: "No tracks found in the DB with release_year sorting " });
+    } else {
+      res.status(200).json(response)
+    }
+
+  } catch (error) {
+    res.status(500).json({ message: "Unable to get tracks by sorting releaseyear", error: error });
   }
 });
 
