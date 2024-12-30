@@ -4,12 +4,14 @@ let { track } = require("./models/track.model");
 let { sequelize } = require("./lib/index");
 const { where } = require('sequelize');
 const cors = require("cors");
+const bodyParser = require('body-parser');
 
 const app = express();
 const port = 3000;
 
 app.use(express.static('static'));
 app.use(cors());
+
 
 let movieData = [
   {
@@ -204,7 +206,15 @@ async function addNewTrack(track){
 
 app.post("/tracks/new", async(req, res)=>{
   try {
-    let track = req.body.newTrack;
+    let track = {
+      "id": 11,
+      "name": "My Alchoholic Friend",
+      "genre": "Pop",
+      "release_year": 2014,
+      "artist": "Ravi",
+      "album": "RRR",
+      "duration": 269
+    };
     let response = await addNewTrack(track);
     res.status(200).json(response);
   } catch (error) {
