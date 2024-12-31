@@ -5,7 +5,7 @@ let track = sequelize.define("track", {
     release_year: DataTypes.INTEGER,
     artist: DataTypes.TEXT,
     album: DataTypes.TEXT,
-    duretion: DataTypes.INTEGER
+    duration: DataTypes.INTEGER
 });
 
 module.exports = { track };
